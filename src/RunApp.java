@@ -1,7 +1,8 @@
 public class RunApp {
+
    public static void main(String[] args) {
       RunApp app = new RunApp();
-      app.runApp();;
+      app.runApp();
    }
 
    public void runApp() {

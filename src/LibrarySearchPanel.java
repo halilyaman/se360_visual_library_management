@@ -3,6 +3,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class LibrarySearchPanel {
    final private static int W_HEIGHT = 720;
@@ -54,20 +57,28 @@ public class LibrarySearchPanel {
       frame.setVisible(true);
    }
 
-   private void loadSearchResultComponents() {
-      for(int i = 0; i<10; i++) {
-         SingleSearchResult ssr = new SingleSearchResult(
-            "The Art of Super Mario Odyssey",
-            "Take a globetrotting journey all over the world--and beyond!--with this companion art book to the hit video game for the Nintendo Switch(TM) system!\n" +
-               "\n" +
-               "In October of 2017, Super Mario Odyssey(TM) took the gaming world by storm. Now, discover the art and expertise that went into creating one of Nintendo's best-loved games!\n" +
-               "\n" +
-               " This full-color volume clocks in at over 350 pages and features concept art, preliminary sketches, and notes from the development team, plus insight into some early ideas that didn't make it into the game itself! Explore the world of Super Mario Odyssey from every angle, including screen shots, marketing material, and more, to fully appreciate this captivating adventure",
-            "Nintendo",
-            "Science, General, Fiction, Poetry",
-            true
-         );
-         resultArea.add(ssr.getResultPanel());
+   /**
+    * Create singleSearchResult. add it to result area
+    */
+   private void loadSearchResultComponents(String bookTitle) {
+
+      try {
+         if(DBConnection.connection == null) {
+            DBConnection.getConnection();
+         }
+         Statement statement = DBConnection.connection.createStatement();
+         ResultSet resultSet = statement.executeQuery("SELECT title, author, description, generes FROM books WHERE title LIKE '" + bookTitle + "';");
+         while(resultSet.next()) {
+            resultArea.add(new SingleSearchResult(
+               resultSet.getString("title"),
+               resultSet.getString("description"),
+               resultSet.getString("author"),
+               resultSet.getString("generes"),
+               true
+            ).getResultPanel());
+         }
+      } catch (SQLException e) {
+         e.printStackTrace();
       }
       centerPanel.updateUI();
    }
@@ -134,7 +145,9 @@ public class LibrarySearchPanel {
          centerPanel.add(scrollableArea, BorderLayout.CENTER);
          scrollableArea.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
 
-         new Thread(LibrarySearchPanel.this::loadSearchResultComponents).start();
+         new Thread(() -> {
+            loadSearchResultComponents(searchBar.getText());
+         }).start();
       }
    }
 }
