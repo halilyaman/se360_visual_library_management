@@ -63,6 +63,13 @@ public class LibrarySearchPanel {
     * Create singleSearchResult. add it to result area
     */
    private void loadSearchResultComponents(String bookTitle) {
+
+      String[] splittedTitle = bookTitle.split(" ");
+      String[] queries = new String[splittedTitle.length];
+      for(int i = 0; i < queries.length; i++) {
+         queries[i] = "%" + splittedTitle[i] + "%";
+      }
+
       ArrayList<SingleSearchResult> results = new ArrayList<>();
       int index = 0;
       try {
@@ -83,6 +90,23 @@ public class LibrarySearchPanel {
                true
             ));
             index++;
+         }
+
+         for(int i = 0; i < queries.length; i++) {
+            resultSet = statement.executeQuery(
+               "SELECT book_title, book_desc, book_authors, genres FROM books WHERE book_title LIKE '" + queries[i] + "';");
+            while(resultSet.next()) {
+               results.add(new SingleSearchResult(
+                  resultSet.getString("book_title"),
+                  resultSet.getString("book_desc"),
+                  resultSet.getString("book_authors"),
+                  resultSet.getString("genres"),
+                  true
+               ));
+               index++;
+               if(index > 50)
+                  break;
+            }
          }
       } catch (SQLException e) {
          e.printStackTrace();

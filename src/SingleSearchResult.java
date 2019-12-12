@@ -102,7 +102,7 @@ public class SingleSearchResult {
       authorArea = new JTextArea();
       genresArea = new JTextArea();
       availabilityArea = new JTextArea();
-      navigationButton = new JButton("Show me the location");
+      navigationButton = new JButton("Where is the book?");
       JPanel authorPanel = new JPanel();
       JPanel genresPanel = new JPanel();
       JPanel availabilityPanel = new JPanel();
