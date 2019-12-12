@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class LibrarySearchPanel {
    final private static int W_HEIGHT = 720;
@@ -20,6 +21,7 @@ public class LibrarySearchPanel {
    private JTextField searchBar;
    private JButton searchButton;
    private JPanel bottomPanel;
+   private JScrollPane scrollableArea;
 
    final private String TEXT_FIELD_LABEL;
    final private Color BG_COLOR;
@@ -61,38 +63,68 @@ public class LibrarySearchPanel {
     * Create singleSearchResult. add it to result area
     */
    private void loadSearchResultComponents(String bookTitle) {
-
+      ArrayList<SingleSearchResult> results = new ArrayList<>();
+      int index = 0;
       try {
          if(DBConnection.connection == null) {
             DBConnection.getConnection();
          }
          Statement statement = DBConnection.connection.createStatement();
-         ResultSet resultSet = statement.executeQuery("SELECT title, author, description, generes FROM books WHERE title LIKE '" + bookTitle + "';");
+         ResultSet resultSet = statement.executeQuery(
+            "SELECT book_title, book_desc, book_authors, genres FROM books WHERE book_title LIKE '" + bookTitle + "';");
+
+         // firstly collect the results in list, then update ui from that list
          while(resultSet.next()) {
-            resultArea.add(new SingleSearchResult(
-               resultSet.getString("title"),
-               resultSet.getString("description"),
-               resultSet.getString("author"),
-               resultSet.getString("generes"),
+            results.add(new SingleSearchResult(
+               resultSet.getString("book_title"),
+               resultSet.getString("book_desc"),
+               resultSet.getString("book_authors"),
+               resultSet.getString("genres"),
                true
-            ).getResultPanel());
+            ));
+            index++;
          }
       } catch (SQLException e) {
          e.printStackTrace();
+      } finally {
+         updateResultArea(results, index);
+         centerPanel.updateUI();
       }
-      centerPanel.updateUI();
+   }
+
+   private void updateResultArea(ArrayList<SingleSearchResult> results, int size) {
+      resultArea.removeAll();
+
+      if(size == 0) {
+         showNotFoundMessage();
+      } else {
+         for(int i = 0; i < size; i++) {
+            resultArea.add(results.get(i).getResultPanel());
+         }
+      }
+
+   }
+
+   private void showNotFoundMessage() {
+      scrollableArea.setVisible(false);
+      JOptionPane.showMessageDialog(frame, "Book Doesn't Exist :(", null, JOptionPane.ERROR_MESSAGE);
    }
 
    private JComponent buildCenterPanel() {
       centerPanel = new JPanel();
-      resultArea = new JPanel();
 
       centerPanel.setBackground(BG_COLOR);
       centerPanel.setLayout(new BorderLayout());
       centerPanel.setBorder(new EmptyBorder(30,100,30,100));
 
+      resultArea = new JPanel();
       resultArea.setLayout(new BoxLayout(resultArea, BoxLayout.Y_AXIS));
       resultArea.setBackground(BG_COLOR);
+
+      scrollableArea = new JScrollPane(resultArea);
+      scrollableArea.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
+      scrollableArea.setVisible(false);
+      centerPanel.add(scrollableArea, BorderLayout.CENTER);
 
       return centerPanel;
    }
@@ -107,7 +139,6 @@ public class LibrarySearchPanel {
       searchBar.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
 
       final JLabel textFieldLabel = new JLabel(TEXT_FIELD_LABEL + ":");
-      // TODO: give a decision about color: "white" or "new Color(102,0,204)"
       textFieldLabel.setForeground(Color.WHITE);
       textFieldLabel.setFont(new Font("Courier new", Font.BOLD, 20));
 
@@ -137,13 +168,8 @@ public class LibrarySearchPanel {
    class SearchButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         panel.add(buildCenterPanel(), BorderLayout.CENTER);
-
          upperPanel.setBorder(new EmptyBorder(20,0,0,0));
-
-         JScrollPane scrollableArea = new JScrollPane(resultArea);
-         centerPanel.add(scrollableArea, BorderLayout.CENTER);
-         scrollableArea.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
+         scrollableArea.setVisible(true);
 
          new Thread(() -> {
             loadSearchResultComponents(searchBar.getText());

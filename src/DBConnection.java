@@ -3,13 +3,14 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
+
    public static Connection connection;
-   private static boolean hasData = false;
 
    public static void getConnection() {
       try {
          Class.forName("org.sqlite.JDBC");
-         connection = DriverManager.getConnection("jdbc:sqlite:books.db");
+         String url = "jdbc:sqlite:books.db";
+         connection = DriverManager.getConnection(url);
       } catch(ClassNotFoundException ex) {
          ex.printStackTrace();
       } catch(SQLException ex) {
