@@ -1,8 +1,8 @@
-import sun.invoke.empty.Empty;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * Result content:
@@ -103,6 +103,7 @@ public class SingleSearchResult {
       genresArea = new JTextArea();
       availabilityArea = new JTextArea();
       navigationButton = new JButton("Where is the book?");
+      navigationButton.addActionListener(new NavigationButtonListener());
       JPanel authorPanel = new JPanel();
       JPanel genresPanel = new JPanel();
       JPanel availabilityPanel = new JPanel();
@@ -138,5 +139,12 @@ public class SingleSearchResult {
       rightContentPanel.add(genresPanel);
       rightContentPanel.add(availabilityPanel);
       rightContentPanel.add(buttonPanel);
+   }
+
+   class NavigationButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         new NavigationPage().openNavigationPage();
+      }
    }
 }

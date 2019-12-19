@@ -9,8 +9,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 public class LibrarySearchPanel {
-   final private static int W_HEIGHT = 720;
-   final private static int W_WIDTH = 1280;
+   final public static int W_HEIGHT = 720;
+   final public static int W_WIDTH = 1280;
    public final static Color DEFAULT_BG_COLOR = new Color(247, 130, 12);
 
    private JFrame frame;
@@ -71,7 +71,7 @@ public class LibrarySearchPanel {
       }
 
       ArrayList<SingleSearchResult> results = new ArrayList<>();
-      int index = 0;
+      int size = 0;
       try {
          if(DBConnection.connection == null) {
             DBConnection.getConnection();
@@ -89,7 +89,7 @@ public class LibrarySearchPanel {
                resultSet.getString("genres"),
                true
             ));
-            index++;
+            size++;
          }
 
          for(int i = 0; i < queries.length; i++) {
@@ -103,15 +103,15 @@ public class LibrarySearchPanel {
                   resultSet.getString("genres"),
                   true
                ));
-               index++;
-               if(index > 50)
+               size++;
+               if(size > 50)
                   break;
             }
          }
       } catch (SQLException e) {
          e.printStackTrace();
       } finally {
-         updateResultArea(results, index);
+         updateResultArea(results, size);
          centerPanel.updateUI();
       }
    }
