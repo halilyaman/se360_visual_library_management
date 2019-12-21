@@ -17,4 +17,6 @@ public class DBConnection {
          ex.printStackTrace();
       }
    }
+
+   // deneme amaçlı notlar
 }

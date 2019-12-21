@@ -19,7 +19,7 @@ public class NavigationPage {
       public void paint(Graphics g) {
          super.paint(g);
          g.setColor(Color.GRAY);
-         g.fillRect(0,0, LibrarySearchPanel.W_WIDTH, LibrarySearchPanel.W_HEIGHT);
+         g.fillRect(90,0, 1100, LibrarySearchPanel.W_HEIGHT);
       }
    }
 }
