@@ -1,13 +1,35 @@
 public class Book {
-   final private String title;
-   final private String description;
-   final private String author;
-   final private String genres;
+   final private String TITLE;
+   final private String DESCRIPTION;
+   final private String AUTHOR;
+   final private String GENRES;
+   final private boolean AVAILABILITY;
 
-   public Book(String title, String description, String author, String genres) {
-      this.title = title;
-      this.description = description;
-      this.author = author;
-      this.genres = genres;
+   public Book(String title, String description, String author, String genres, boolean availability) {
+      this.TITLE = title;
+      this.DESCRIPTION = description;
+      this.AUTHOR = author;
+      this.GENRES = genres;
+      this.AVAILABILITY = availability;
+   }
+
+   public String getTITLE() {
+      return TITLE;
+   }
+
+   public String getDESCRIPTION() {
+      return DESCRIPTION;
+   }
+
+   public String getAUTHOR() {
+      return AUTHOR;
+   }
+
+   public String getGENRES() {
+      return GENRES;
+   }
+
+   public boolean isAvailable() {
+      return AVAILABILITY;
    }
 }

@@ -70,7 +70,7 @@ public class LibrarySearchPanel {
          queries[i] = "%" + splittedTitle[i] + "%";
       }
 
-      ArrayList<SingleSearchResult> results = new ArrayList<>();
+      ArrayList<Book> results = new ArrayList<>();
       int size = 0;
       try {
          if(DBConnection.connection == null) {
@@ -82,7 +82,7 @@ public class LibrarySearchPanel {
 
          // firstly collect the results in list, then update ui from that list
          while(resultSet.next()) {
-            results.add(new SingleSearchResult(
+            results.add(new Book(
                resultSet.getString("book_title"),
                resultSet.getString("book_desc"),
                resultSet.getString("book_authors"),
@@ -96,7 +96,7 @@ public class LibrarySearchPanel {
             resultSet = statement.executeQuery(
                "SELECT book_title, book_desc, book_authors, genres FROM books WHERE book_title LIKE '" + queries[i] + "';");
             while(resultSet.next()) {
-               results.add(new SingleSearchResult(
+               results.add(new Book(
                   resultSet.getString("book_title"),
                   resultSet.getString("book_desc"),
                   resultSet.getString("book_authors"),
@@ -116,14 +116,14 @@ public class LibrarySearchPanel {
       }
    }
 
-   private void updateResultArea(ArrayList<SingleSearchResult> results, int size) {
+   private void updateResultArea(ArrayList<Book> results, int size) {
       resultArea.removeAll();
 
       if(size == 0) {
          showNotFoundMessage();
       } else {
          for(int i = 0; i < size; i++) {
-            resultArea.add(results.get(i).getResultPanel());
+            resultArea.add(new SingleSearchResult(results.get(i)).getResultPanel());
          }
       }
 

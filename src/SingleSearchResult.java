@@ -26,24 +26,10 @@ public class SingleSearchResult {
    private JTextArea availabilityArea;
    private JButton navigationButton;
 
-   final private String TITLE;
-   final private String DESCRIPTION;
-   final private String AUTHOR;
-   final private String GENRES;
-   private boolean isAvailable;
+   final private Book book;
 
-   public SingleSearchResult(
-      String title,
-      String description,
-      String author,
-      String genres,
-      boolean isAvailable
-   ) {
-      TITLE = title;
-      DESCRIPTION = description;
-      AUTHOR = author;
-      GENRES = genres;
-      this.isAvailable = isAvailable;
+   public SingleSearchResult(Book book) {
+      this.book = book;
    }
 
    public JPanel getResultPanel() {
@@ -81,13 +67,13 @@ public class SingleSearchResult {
       JPanel descriptionPanel = new JPanel();
 
       descriptionArea.setEditable(false);
-      descriptionArea.setText(DESCRIPTION);
+      descriptionArea.setText(book.getDESCRIPTION());
       descriptionArea.setLineWrap(true);
       descriptionScrollPane.setPreferredSize(new Dimension(400, 150));
       descriptionPanel.setBorder(new EmptyBorder(10,10,10,10));
 
       titleArea.setEditable(false);
-      titleArea.setText(TITLE);
+      titleArea.setText(book.getTITLE());
       titleScrollPane.setPreferredSize(new Dimension(400, 35));
       titlePanel.setBorder(new EmptyBorder(10,10,0,10));
 
@@ -113,17 +99,17 @@ public class SingleSearchResult {
       JScrollPane availabilityScrollPane = new JScrollPane(availabilityArea);
 
       authorArea.setEditable(false);
-      authorArea.setText("Author: " + AUTHOR);
+      authorArea.setText("Author: " + book.getAUTHOR());
       authorScrollPane.setPreferredSize(new Dimension(500, 35));
       authorPanel.setBorder(new EmptyBorder(10, 10, 16, 10));
 
       genresArea.setEditable(false);
-      genresArea.setText("Genres: " + GENRES);
+      genresArea.setText("Genres: " + book.getGENRES());
       genresScrollPane.setPreferredSize(new Dimension(500, 35));
       genresPanel.setBorder(new EmptyBorder(10,10,10,10));
 
       availabilityArea.setEditable(false);
-      availabilityArea.setText(isAvailable ? "Available": "Not Available");
+      availabilityArea.setText(book.isAvailable() ? "Available": "Not Available");
       availabilityScrollPane.setPreferredSize(new Dimension(500, 35));
       availabilityPanel.setBorder(new EmptyBorder(16,10,10,10));
 
