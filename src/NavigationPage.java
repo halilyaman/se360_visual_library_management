@@ -3,6 +3,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -34,10 +37,14 @@ public class NavigationPage {
    private int startNodeRow = -1;
    private int startNodeCol = -1;
 
-   public NavigationPage() {
+   final private int destination_id;
+
+   public NavigationPage(int destination_id) {
       previousNodes = new Node[2];
       nodes = (Node[][]) LibrarySketchManager.loadLibrarySketch();
+      this.destination_id = destination_id;
       setNodes();
+      updateStartNodeLocation();
    }
 
    void buildScreen() {
@@ -97,12 +104,60 @@ public class NavigationPage {
             }
          }
       } else {
+         LinkedList<Book> allBooks = getAllBooksFromDatabase();
          for(int row = 0; row < ROW_SIZE; row++) {
             for(int col = 0; col < COL_SIZE; col++) {
                nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
                nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
+               fillShelvesWithBooks(row, col, allBooks);
+               if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+                  if (nodes[row][col].containDestinationPoint(destination_id)) {
+                     nodes[row][col].setNodeType(NodeTypes.EndNode);
+                  }
+               }
             }
          }
+      }
+   }
+
+   private LinkedList<Book> getAllBooksFromDatabase() {
+      LinkedList<Book> results = new LinkedList<>();
+      try {
+         if(DBConnection.connection == null) {
+            DBConnection.getConnection();
+         }
+         Statement statement = DBConnection.connection.createStatement();
+         ResultSet resultSet = statement.executeQuery(
+            "SELECT * FROM books ORDER BY genres;");
+
+         // firstly collect the results in list, then update ui from that list
+         while(resultSet.next()) {
+            results.add(new Book(
+               resultSet.getString("book_title"),
+               resultSet.getString("book_desc"),
+               resultSet.getString("book_authors"),
+               resultSet.getString("genres"),
+               resultSet.getInt("location"),
+               true
+            ));
+         }
+      } catch (SQLException e) {
+         e.printStackTrace();
+      }
+      return results;
+   }
+
+   private void fillShelvesWithBooks(int row, int col, LinkedList<Book> allBooks) {
+      if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+         Book[][] books = new Book[Node.SHELF_NUMBER][Node.BOOK_CAPACITY];
+         for(int shelf = 0; shelf < Node.SHELF_NUMBER; shelf++) {
+            for (int i = 0; i < Node.BOOK_CAPACITY; i++) {
+               if (!allBooks.isEmpty()) {
+                  books[shelf][i] = allBooks.removeLast();
+               }
+            }
+         }
+         nodes[row][col].setBooks(books);
       }
    }
 
@@ -191,6 +246,17 @@ public class NavigationPage {
       }
    }
 
+   private void updateStartNodeLocation() {
+      for(int row = 0; row < ROW_SIZE; row++) {
+         for(int col = 0; col < COL_SIZE; col++) {
+            if(nodes[row][col].getNodeType() == NodeTypes.StartNode) {
+               startNodeRow = row;
+               startNodeCol = col;
+            }
+         }
+      }
+   }
+
    private void updateNode(int val, Node selectedNode) {
       if(val == 1) {
          if(!(previousNodes[0] == null)) {
@@ -240,6 +306,7 @@ public class NavigationPage {
             optionTextList[1]
          );
          updateNode(val, selectedNode);
+         selectedNode.printBooks();
       }
 
       @Override

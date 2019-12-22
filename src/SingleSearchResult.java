@@ -130,7 +130,7 @@ public class SingleSearchResult {
    class NavigationButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         NavigationPage navigationPage = new NavigationPage();
+         NavigationPage navigationPage = new NavigationPage(book.getLOCATION());
          new Thread(navigationPage::buildScreen).start();
       }
    }

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class LibrarySearchPanel {
    final public static int W_HEIGHT = 720;
    final public static int W_WIDTH = 1280;
-   public final static Color DEFAULT_BG_COLOR = new Color(247, 130, 12);
+   final public static Color DEFAULT_BG_COLOR = new Color(247, 130, 12);
 
    private JFrame frame;
    private JPanel panel;
@@ -78,7 +78,7 @@ public class LibrarySearchPanel {
          }
          Statement statement = DBConnection.connection.createStatement();
          ResultSet resultSet = statement.executeQuery(
-            "SELECT book_title, book_desc, book_authors, genres FROM books WHERE book_title LIKE '" + bookTitle + "';");
+            "SELECT book_title, book_desc, book_authors, genres, location FROM books WHERE book_title LIKE '" + bookTitle + "';");
 
          // firstly collect the results in list, then update ui from that list
          while(resultSet.next()) {
@@ -87,6 +87,7 @@ public class LibrarySearchPanel {
                resultSet.getString("book_desc"),
                resultSet.getString("book_authors"),
                resultSet.getString("genres"),
+               resultSet.getInt("location"),
                true
             ));
             size++;
@@ -94,13 +95,14 @@ public class LibrarySearchPanel {
 
          for(int i = 0; i < queries.length; i++) {
             resultSet = statement.executeQuery(
-               "SELECT book_title, book_desc, book_authors, genres FROM books WHERE book_title LIKE '" + queries[i] + "';");
+               "SELECT book_title, book_desc, book_authors, genres, location FROM books WHERE book_title LIKE '" + queries[i] + "';");
             while(resultSet.next()) {
                results.add(new Book(
                   resultSet.getString("book_title"),
                   resultSet.getString("book_desc"),
                   resultSet.getString("book_authors"),
                   resultSet.getString("genres"),
+                  resultSet.getInt("location"),
                   true
                ));
                size++;
