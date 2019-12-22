@@ -6,7 +6,7 @@ import java.io.Serializable;
 public class Node implements Serializable {
 
    public static int BOOK_CAPACITY = 20;
-   public static int SHELF_NUMBER = 5;
+   public static int SHELF_NUMBER = 6;
 
    private JPanel nodePanel = new JPanel();
    private JPanel inlineNodePanel = new JPanel();
@@ -79,9 +79,9 @@ public class Node implements Serializable {
       } else if(nodeType == NodeTypes.WallNode) {
          this.setColor(Color.black);
       } else if(nodeType == NodeTypes.PathNode) {
-         this.setColor(Color.BLUE);
+         this.setColor(Color.RED);
       } else if(nodeType == NodeTypes.SearchedNode) {
-         this.setColor(Color.orange);
+         this.setColor(Color.BLUE);
       }
    }
 

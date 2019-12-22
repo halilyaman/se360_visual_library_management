@@ -60,16 +60,13 @@ public class NavigationPage {
       buildGridView();
 
       JButton backButton = new JButton("Back");
-      JButton run = new JButton("Run");
       JButton saveSketch = new JButton("Save Sketch");
 
       saveSketch.addActionListener(new SaveSketchListener());
-      run.addActionListener(new RunAlgorithmButtonListener());
       backButton.addActionListener(new BackButtonListener());
 
       bottomPanel.setLayout(new FlowLayout());
       bottomPanel.add(backButton);
-      bottomPanel.add(run);
       bottomPanel.add(saveSketch);
       bottomPanel.setBackground(Color.BLUE);
 
@@ -83,6 +80,8 @@ public class NavigationPage {
       frame.setLocationRelativeTo(null);
       frame.setResizable(false);
       frame.setVisible(true);
+
+      runDijkstra();
    }
 
    private void buildGridView() {
@@ -130,7 +129,6 @@ public class NavigationPage {
          ResultSet resultSet = statement.executeQuery(
             "SELECT * FROM books ORDER BY genres;");
 
-         // firstly collect the results in list, then update ui from that list
          while(resultSet.next()) {
             results.add(new Book(
                resultSet.getString("book_title"),
@@ -190,11 +188,6 @@ public class NavigationPage {
 
             for(Node child: children) {
                if(child.getNodeType() == NodeTypes.AvailableNode) {
-                  try {
-                     Thread.sleep(10);
-                  } catch(InterruptedException ex) {
-                     ex.printStackTrace();
-                  }
                   child.setNodeType(NodeTypes.SearchedNode);
                   child.setDistanceToStartNode(distance++);
                   queue.offer(child);
@@ -342,20 +335,11 @@ public class NavigationPage {
       }
    }
 
-   class RunAlgorithmButtonListener implements ActionListener {
-      @Override
-      public synchronized void actionPerformed(ActionEvent e) {
-         Thread dijkstraThread = new Thread(() -> {
-            runDijkstra();
-         });
-         dijkstraThread.start();
-      }
-   }
-
    class BackButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
          frame.dispose();
+         System.gc();
       }
    }
 
