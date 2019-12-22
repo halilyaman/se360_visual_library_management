@@ -144,7 +144,8 @@ public class SingleSearchResult {
    class NavigationButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         new NavigationPage().openNavigationPage();
+         NavigationPage navigationPage = new NavigationPage();
+         new Thread(navigationPage::buildScreen).start();
       }
    }
 }

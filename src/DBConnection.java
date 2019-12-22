@@ -15,7 +15,6 @@ public class DBConnection {
          ex.printStackTrace();
       } catch(SQLException ex) {
          ex.printStackTrace();
-         System.out.println("Deneme amaçlı");
       }
    }
 }
