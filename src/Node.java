@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 public class Node implements Serializable {
 
-   public static int BOOK_CAPACITY = 20;
-   public static int SHELF_NUMBER = 6;
+   public static int BOOK_CAPACITY = 15;
+   public static int SHELF_NUMBER = 5;
 
    private JPanel nodePanel = new JPanel();
    private JPanel inlineNodePanel = new JPanel();
@@ -149,5 +149,43 @@ public class Node implements Serializable {
          }
       }
       return false;
+   }
+
+   public Book getBook(int location) {
+      for(Book[] shelf : books) {
+         for(Book book : shelf) {
+            if(book.getLOCATION() == location) {
+               return book;
+            }
+         }
+      }
+      return null;
+   }
+
+   public int getShelfNumber(int location) {
+      int shelfCounter = 0;
+      for(Book[] shelf : books) {
+         shelfCounter++;
+         for(Book book : shelf) {
+            if(book.getLOCATION() == location) {
+               return shelfCounter;
+            }
+         }
+      }
+      return -1;
+   }
+
+   public int getOrderNumber(int location) {
+      int orderCounter = 0;
+      for(Book[] shelf : books) {
+         for(Book book : shelf) {
+            orderCounter++;
+            if(book.getLOCATION() == location) {
+               return orderCounter;
+            }
+         }
+         orderCounter = 0;
+      }
+      return -1;
    }
 }

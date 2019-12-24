@@ -1,8 +1,14 @@
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,6 +33,9 @@ public class NavigationPage {
    private JPanel panel;
    private JPanel bottomPanel;
    private JPanel gridViewPanel;
+   private JPanel eastPanel;
+   private JPanel imageArea;
+   private JLabel bookInformation;
    private Node[][] nodes;
 
    //index0 start node, index1 end node
@@ -41,10 +50,65 @@ public class NavigationPage {
 
    public NavigationPage(int destination_id) {
       previousNodes = new Node[2];
-      nodes = (Node[][]) LibrarySketchManager.loadLibrarySketch();
       this.destination_id = destination_id;
-      setNodes();
+
+      loadLibraryPattern();
       updateStartNodeLocation();
+   }
+
+   private void loadLibraryPattern() {
+      LinkedList<Book> allBooks = getAllBooksFromDatabase();
+      int[][] libraryPattern = (int[][]) LibrarySketchManager.loadLibrarySketch("library_pattern.dat");
+      nodes = new Node[ROW_SIZE][COL_SIZE];
+      for(int row = 0; row < ROW_SIZE; row++) {
+         for(int col = 0; col < COL_SIZE; col++) {
+
+            if(libraryPattern[row][col] == -1) {
+               nodes[row][col] = new Node(row, col, NodeTypes.AvailableNode);
+            } else if(libraryPattern[row][col] == 0) {
+               nodes[row][col] = new Node(row, col, NodeTypes.StartNode);
+            } else if(libraryPattern[row][col] == 1) {
+               nodes[row][col] = new Node(row, col, NodeTypes.WallNode);
+            }
+
+            nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
+            nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
+
+            fillShelvesWithBooks(row, col, allBooks);
+
+            if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+               if (nodes[row][col].containDestinationPoint(destination_id)) {
+                  addImage(nodes[row][col].getBook(destination_id).getIMAGE_URL());
+                  addBookInformationLabel(nodes[row][col].getBook(destination_id), row, col);
+                  nodes[row][col].setNodeType(NodeTypes.EndNode);
+               }
+            }
+
+         }
+      }
+   }
+
+   private void addBookInformationLabel(Book book, int row, int col) {
+      String shelfNumber = Integer.toString(nodes[row][col].getShelfNumber(book.getLOCATION()));
+      String orderNumber = Integer.toString(nodes[row][col].getOrderNumber(book.getLOCATION()));
+
+      bookInformation = new JLabel("Shelf Number: " + shelfNumber + "\nOrder Number: " + orderNumber);
+   }
+
+   private void saveLibraryPattern() {
+      int[][] libraryPattern = new int[ROW_SIZE][COL_SIZE];
+      for(int row = 0; row < ROW_SIZE; row++) {
+         for(int col = 0; col < COL_SIZE; col++) {
+            if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+               libraryPattern[row][col] = 1;
+            } else if(nodes[row][col].getNodeType() == NodeTypes.StartNode) {
+               libraryPattern[row][col] = 0;
+            } else {
+               libraryPattern[row][col] = -1;
+            }
+         }
+      }
+      LibrarySketchManager.saveLibraryPattern(libraryPattern, "library_pattern.dat");
    }
 
    void buildScreen() {
@@ -70,8 +134,17 @@ public class NavigationPage {
       bottomPanel.add(saveSketch);
       bottomPanel.setBackground(Color.BLUE);
 
+      imageArea.setPreferredSize(new Dimension(100, 100));
+      imageArea.setLayout(new BorderLayout());
+
+      eastPanel.add(imageArea);
+      eastPanel.add(bookInformation);
+      eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+      eastPanel.setBorder(new EmptyBorder(100, 15, 95, 15));
+
       panel.add(gridViewPanel, BorderLayout.CENTER);
       panel.add(bottomPanel, BorderLayout.SOUTH);
+      panel.add(eastPanel, BorderLayout.EAST);
 
       frame.setLayout(null);
       frame.setSize(new Dimension(LibrarySearchPanel.W_WIDTH, LibrarySearchPanel.W_HEIGHT));
@@ -92,30 +165,24 @@ public class NavigationPage {
       }
    }
 
-   private void setNodes() {
-      if(nodes == null) {
-         nodes = new Node[ROW_SIZE][COL_SIZE];
-         for(int row = 0; row < ROW_SIZE; row++) {
-            for(int col = 0; col < COL_SIZE; col++) {
-               nodes[row][col] = new Node(row, col, NodeTypes.AvailableNode);
-               nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
-               nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
-            }
-         }
-      } else {
-         LinkedList<Book> allBooks = getAllBooksFromDatabase();
-         for(int row = 0; row < ROW_SIZE; row++) {
-            for(int col = 0; col < COL_SIZE; col++) {
-               nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
-               nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
-               fillShelvesWithBooks(row, col, allBooks);
-               if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
-                  if (nodes[row][col].containDestinationPoint(destination_id)) {
-                     nodes[row][col].setNodeType(NodeTypes.EndNode);
-                  }
-               }
-            }
-         }
+   private void addImage(String urlPath) {
+      eastPanel = new JPanel();
+      imageArea = new JPanel();
+      Image image;
+      URL url;
+      try {
+         url = new URL(urlPath);
+         image = ImageIO.read(url);
+         image = image.getScaledInstance(292, 453, Image.SCALE_DEFAULT);
+         ImageIcon imageIcon = new ImageIcon(image);
+         JLabel imageLabel = new JLabel(imageIcon);
+         imageLabel.setSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
+         imageArea.add(imageLabel, BorderLayout.CENTER);
+         eastPanel.updateUI();
+      } catch (MalformedURLException e) {
+         e.printStackTrace();
+      } catch(IOException ex) {
+         ex.printStackTrace();
       }
    }
 
@@ -136,6 +203,7 @@ public class NavigationPage {
                resultSet.getString("book_authors"),
                resultSet.getString("genres"),
                resultSet.getInt("location"),
+               resultSet.getString("image_url"),
                true
             ));
          }
@@ -346,7 +414,7 @@ public class NavigationPage {
    class SaveSketchListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         LibrarySketchManager.saveLibrarySketch(nodes);
+         saveLibraryPattern();
       }
    }
 }
