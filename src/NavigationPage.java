@@ -85,14 +85,12 @@ public class NavigationPage {
       bottomPanel.setBackground(Color.BLUE);
 
       imageArea.setPreferredSize(new Dimension(100, 100));
-      imageArea.setBackground(Color.red);
       imageArea.setLayout(new BorderLayout());
 
       eastPanel.add(imageArea);
-      eastPanel.add(new JLabel("HALİL YAMANasdasdasdasdasdasdasd"));
+      eastPanel.add(new JLabel("Shelf Number: dasdasdasdOrder Number: "));
       eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
-      eastPanel.setBorder(new EmptyBorder(90, 10, 90, 10));
-      eastPanel.setBackground(Color.magenta);
+      eastPanel.setBorder(new EmptyBorder(100, 15, 95, 15));
 
       panel.add(gridViewPanel, BorderLayout.CENTER);
       panel.add(bottomPanel, BorderLayout.SOUTH);
@@ -119,6 +117,8 @@ public class NavigationPage {
 
    private void setNodes() {
       if(nodes == null) {
+         eastPanel = new JPanel();
+         imageArea = new JPanel();
          nodes = new Node[ROW_SIZE][COL_SIZE];
          for(int row = 0; row < ROW_SIZE; row++) {
             for(int col = 0; col < COL_SIZE; col++) {
@@ -153,7 +153,7 @@ public class NavigationPage {
       try {
          url = new URL(urlPath);
          image = ImageIO.read(url);
-         image = image.getScaledInstance(280, 450, Image.SCALE_DEFAULT);
+         image = image.getScaledInstance(292, 453, Image.SCALE_DEFAULT);
          ImageIcon imageIcon = new ImageIcon(image);
          JLabel imageLabel = new JLabel(imageIcon);
          imageLabel.setSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));

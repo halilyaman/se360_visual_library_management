@@ -5,8 +5,8 @@ import java.io.Serializable;
 
 public class Node implements Serializable {
 
-   public static int BOOK_CAPACITY = 20;
-   public static int SHELF_NUMBER = 6;
+   public static int BOOK_CAPACITY = 15; // 20
+   public static int SHELF_NUMBER = 5; // 6
 
    private JPanel nodePanel = new JPanel();
    private JPanel inlineNodePanel = new JPanel();
