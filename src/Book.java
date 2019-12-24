@@ -7,7 +7,7 @@ public class Book implements Serializable {
    final private String GENRES;
    final private Integer LOCATION;
    final private String IMAGE_URL;
-   final private boolean AVAILABILITY;
+   private boolean isAvailable;
 
    public Book(String title, String description, String author, String genres, int location, String imageUrl, boolean availability) {
       this.TITLE = title;
@@ -15,7 +15,7 @@ public class Book implements Serializable {
       this.AUTHOR = author;
       this.GENRES = genres;
       this.LOCATION = location;
-      this.AVAILABILITY = availability;
+      this.isAvailable = availability;
       this.IMAGE_URL = imageUrl;
    }
 
@@ -40,10 +40,14 @@ public class Book implements Serializable {
    }
 
    public boolean isAvailable() {
-      return AVAILABILITY;
+      return isAvailable;
    }
 
    public Integer getLOCATION() {
       return LOCATION;
+   }
+
+   public void setAvailable(boolean available) {
+      this.isAvailable = available;
    }
 }

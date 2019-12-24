@@ -3,6 +3,9 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Result content:
@@ -25,11 +28,14 @@ public class SingleSearchResult {
    private JTextArea genresArea;
    private JTextArea availabilityArea;
    private JButton navigationButton;
+   private JButton borrowButton;
+   private JButton returnButton;
 
    final private Book book;
 
    public SingleSearchResult(Book book) {
       this.book = book;
+      searchBorrowedBooks();
    }
 
    public JPanel getResultPanel() {
@@ -121,17 +127,112 @@ public class SingleSearchResult {
       buttonPanel.setPreferredSize(new Dimension(500, 28));
       buttonPanel.add(navigationButton, BorderLayout.EAST);
 
+      if(Admin.isAdminOnline) {
+         if(!book.isAvailable()) {
+            returnButton = new JButton("Return");
+            returnButton.addActionListener(new ReturnButtonListener());
+            buttonPanel.add(returnButton, BorderLayout.CENTER);
+         } else {
+            borrowButton = new JButton("Borrow");
+            borrowButton.addActionListener(new BorrowButtonListener());
+            buttonPanel.add(borrowButton, BorderLayout.CENTER);
+         }
+      }
+
       rightContentPanel.add(authorPanel);
       rightContentPanel.add(genresPanel);
       rightContentPanel.add(availabilityPanel);
       rightContentPanel.add(buttonPanel);
    }
 
+   private void searchBorrowedBooks() {
+      try {
+         FileReader fileReader = new FileReader("borrows.csv");
+         BufferedReader reader = new BufferedReader(fileReader);
+
+         String line;
+         String[] parsed;
+         while((line = reader.readLine()) != null) {
+            parsed = line.split(",");
+            if(Integer.parseInt(parsed[0]) == book.getLOCATION()) {
+               book.setAvailable(false);
+            }
+         }
+         reader.close();
+      } catch(IOException ex) { }
+   }
+
+
+
    class NavigationButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
          NavigationPage navigationPage = new NavigationPage(book.getLOCATION());
          new Thread(navigationPage::buildScreen).start();
+      }
+   }
+
+   class BorrowButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         int location = book.getLOCATION();
+         Date date = new Date();
+         long millis = date.getTime();
+         String userId = JOptionPane.showInputDialog(null,"User ID:", "Form", JOptionPane.INFORMATION_MESSAGE);
+
+         try {
+            FileWriter fileWriter = new FileWriter("borrows.csv", true);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+
+            printWriter.print(location);
+            printWriter.print(",");
+            printWriter.print(millis);
+            printWriter.print(",");
+            printWriter.println(userId);
+            printWriter.close();
+         } catch(IOException ex) {
+            ex.printStackTrace();
+         }
+      }
+   }
+
+   class ReturnButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         try {
+            FileReader fileReader = new FileReader("borrows.csv");
+            BufferedReader reader = new BufferedReader(fileReader);
+
+            String line;
+            ArrayList<String> lines = new ArrayList<>();
+            String[] parsed = null;
+            while((line = reader.readLine()) != null) {
+               parsed = line.split(",");
+               if(!(Integer.parseInt(parsed[0]) == book.getLOCATION())) {
+                  lines.add(line);
+               }
+            }
+            reader.close();
+
+            int selection = -1;
+            if(parsed != null) {
+               String message = "User ID: " + parsed[2] + "\nBook Title: " + book.getTITLE();
+               selection = JOptionPane.showConfirmDialog(null,message, "Message", JOptionPane.YES_NO_OPTION);
+            }
+
+            if(selection == 0) {
+               FileWriter fileWriter = new FileWriter("borrows.csv");
+               PrintWriter writer = new PrintWriter(fileWriter);
+
+               for (String borrowRecord : lines) {
+                  writer.println(borrowRecord);
+               }
+
+               writer.close();
+            }
+         } catch(IOException ex) {
+            ex.printStackTrace();
+         }
       }
    }
 }

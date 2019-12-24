@@ -23,6 +23,9 @@ public class LibrarySearchPanel {
    private JPanel bottomPanel;
    private JScrollPane scrollableArea;
 
+   private JButton adminButton;
+   private JButton signOutButton;
+
    final private String TEXT_FIELD_LABEL;
    final private Color BG_COLOR;
    final private String WINDOW_TITLE;
@@ -50,6 +53,8 @@ public class LibrarySearchPanel {
       panel.add(buildUpperPanel(), BorderLayout.NORTH);
       panel.add(buildBottomPanel(), BorderLayout.SOUTH);
       panel.add(buildCenterPanel(), BorderLayout.CENTER);
+
+      buttonVisibilityController();
 
       frame.getContentPane().add(panel, BorderLayout.CENTER);
       frame.setSize(W_WIDTH, W_HEIGHT);
@@ -157,6 +162,18 @@ public class LibrarySearchPanel {
       return centerPanel;
    }
 
+   private JComponent buildBottomPanel() {
+      bottomPanel = new JPanel();
+      bottomPanel.setLayout(new FlowLayout());
+      bottomPanel.setBorder(new EmptyBorder(0,0,10,0));
+      bottomPanel.setBackground(BG_COLOR);
+
+      final JLabel copyright = new JLabel(BOTTOM_TEXT);
+      bottomPanel.add(copyright);
+
+      return bottomPanel;
+   }
+
    private JComponent buildUpperPanel() {
       upperPanel = new JPanel();
       upperPanel.setLayout(new FlowLayout());
@@ -174,23 +191,32 @@ public class LibrarySearchPanel {
       searchButton = new JButton("Search", searchIcon);
       searchButton.addActionListener(new SearchButtonListener());
 
+      signOutButton = new JButton("Sign Out");
+      signOutButton.addActionListener(new SignOutButtonListener());
+
+      adminButton = new JButton("Admin");
+      adminButton.addActionListener(new AdminButtonListener());
+
       upperPanel.add(textFieldLabel);
       upperPanel.add(searchBar);
       upperPanel.add(searchButton);
+      upperPanel.add(adminButton);
+      upperPanel.add(signOutButton);
 
       return upperPanel;
    }
 
-   private JComponent buildBottomPanel() {
-      bottomPanel = new JPanel();
-      bottomPanel.setLayout(new FlowLayout());
-      bottomPanel.setBorder(new EmptyBorder(0,0,10,0));
-      bottomPanel.setBackground(BG_COLOR);
+   private void buttonVisibilityController() {
+      if(Admin.isAdminOnline) {
+         adminButton.setVisible(false);
+         signOutButton.setVisible(true);
+      } else {
+         adminButton.setVisible(true);
+         signOutButton.setVisible(false);
+      }
 
-      final JLabel copyright = new JLabel(BOTTOM_TEXT);
-      bottomPanel.add(copyright);
-
-      return bottomPanel;
+      scrollableArea.setVisible(false);
+      upperPanel.setBorder(new EmptyBorder(300,0,0,0));
    }
 
    class SearchButtonListener implements ActionListener {
@@ -202,6 +228,36 @@ public class LibrarySearchPanel {
          new Thread(() -> {
             loadSearchResultComponents(searchBar.getText());
          }).start();
+      }
+   }
+
+   class AdminButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         String username = JOptionPane.showInputDialog("Username");
+         String password = JOptionPane.showInputDialog("Password");
+
+         if(username.equals(Admin.USERNAME) && password.equals(Admin.PASSWORD)) {
+            Admin.isAdminOnline = true;
+         }
+
+         if(!Admin.isAdminOnline) {
+            JOptionPane.showMessageDialog(null, "Wrong username or password.","Message", JOptionPane.ERROR_MESSAGE);
+         } else {
+            JOptionPane.showMessageDialog(null, "Access Approved", "Message", JOptionPane.INFORMATION_MESSAGE);
+         }
+
+         buttonVisibilityController();
+         upperPanel.updateUI();
+      }
+   }
+
+   class SignOutButtonListener implements ActionListener {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+         Admin.isAdminOnline = false;
+
+         buttonVisibilityController();
       }
    }
 }
