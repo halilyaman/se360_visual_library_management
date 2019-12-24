@@ -88,13 +88,6 @@ public class NavigationPage {
       }
    }
 
-   private void addBookInformationLabel(Book book, int row, int col) {
-      String shelfNumber = Integer.toString(nodes[row][col].getShelfNumber(book.getLOCATION()));
-      String orderNumber = Integer.toString(nodes[row][col].getOrderNumber(book.getLOCATION()));
-
-      bookInformation = new JLabel("Shelf Number: " + shelfNumber + "\nOrder Number: " + orderNumber);
-   }
-
    private void saveLibraryPattern() {
       int[][] libraryPattern = new int[ROW_SIZE][COL_SIZE];
       for(int row = 0; row < ROW_SIZE; row++) {
@@ -120,7 +113,7 @@ public class NavigationPage {
       panel.setLayout(new BorderLayout());
       panel.setBackground(Color.WHITE);
       gridViewPanel.setLayout(new GridLayout(ROW_SIZE, COL_SIZE));
-      gridViewPanel.setBorder(new EmptyBorder(80,50,80,50));
+      gridViewPanel.setBorder(new EmptyBorder(110,10,110,10));
       buildGridView();
 
       JButton backButton = new JButton("Back");
@@ -137,10 +130,10 @@ public class NavigationPage {
       imageArea.setPreferredSize(new Dimension(100, 100));
       imageArea.setLayout(new BorderLayout());
 
+      eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+      eastPanel.setBorder(new EmptyBorder(130, 0, 80, 0));
       eastPanel.add(imageArea);
       eastPanel.add(bookInformation);
-      eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
-      eastPanel.setBorder(new EmptyBorder(100, 15, 95, 15));
 
       panel.add(gridViewPanel, BorderLayout.CENTER);
       panel.add(bottomPanel, BorderLayout.SOUTH);
@@ -165,6 +158,13 @@ public class NavigationPage {
       }
    }
 
+   private void addBookInformationLabel(Book book, int row, int col) {
+      String shelfNumber = Integer.toString(nodes[row][col].getShelfNumber(book.getLOCATION()));
+      String orderNumber = Integer.toString(nodes[row][col].getOrderNumber(book.getLOCATION()));
+
+      bookInformation = new JLabel("Shelf Number: " + shelfNumber + " | Order Number: " + orderNumber);
+   }
+
    private void addImage(String urlPath) {
       eastPanel = new JPanel();
       imageArea = new JPanel();
@@ -173,11 +173,11 @@ public class NavigationPage {
       try {
          url = new URL(urlPath);
          image = ImageIO.read(url);
-         image = image.getScaledInstance(292, 453, Image.SCALE_DEFAULT);
+         image = image.getScaledInstance(250, 400, Image.SCALE_DEFAULT); // 292, 453
          ImageIcon imageIcon = new ImageIcon(image);
          JLabel imageLabel = new JLabel(imageIcon);
          imageLabel.setSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
-         imageArea.add(imageLabel, BorderLayout.CENTER);
+         imageArea.add(imageLabel);
          eastPanel.updateUI();
       } catch (MalformedURLException e) {
          e.printStackTrace();
