@@ -46,22 +46,63 @@ public class NavigationPage {
    private int startNodeCol = -1;
 
    final private int destination_id;
-   private NavigationPage me;
 
    public NavigationPage(int destination_id) {
       previousNodes = new Node[2];
-      nodes = (Node[][]) LibrarySketchManager.loadLibrarySketch();
       this.destination_id = destination_id;
-      setNodes();
+
+      loadLibraryPattern();
       updateStartNodeLocation();
    }
 
-   private void delete() {
-      me = null;
+   private void loadLibraryPattern() {
+      LinkedList<Book> allBooks = getAllBooksFromDatabase();
+      int[][] libraryPattern = (int[][]) LibrarySketchManager.loadLibrarySketch("library_pattern.dat");
+      nodes = new Node[ROW_SIZE][COL_SIZE];
+      for(int row = 0; row < ROW_SIZE; row++) {
+         for(int col = 0; col < COL_SIZE; col++) {
+
+            if(libraryPattern[row][col] == -1) {
+               nodes[row][col] = new Node(row, col, NodeTypes.AvailableNode);
+            } else if(libraryPattern[row][col] == 0) {
+               nodes[row][col] = new Node(row, col, NodeTypes.StartNode);
+            } else if(libraryPattern[row][col] == 1) {
+               nodes[row][col] = new Node(row, col, NodeTypes.WallNode);
+            }
+
+            nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
+            nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
+
+            fillShelvesWithBooks(row, col, allBooks);
+
+            if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+               if (nodes[row][col].containDestinationPoint(destination_id)) {
+                  addImage(nodes[row][col].getBook(destination_id).getIMAGE_URL());
+                  nodes[row][col].setNodeType(NodeTypes.EndNode);
+               }
+            }
+
+         }
+      }
    }
 
-   void buildScreen(NavigationPage me) {
-      this.me = me;
+   private void saveLibraryPattern() {
+      int[][] libraryPattern = new int[ROW_SIZE][COL_SIZE];
+      for(int row = 0; row < ROW_SIZE; row++) {
+         for(int col = 0; col < COL_SIZE; col++) {
+            if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
+               libraryPattern[row][col] = 1;
+            } else if(nodes[row][col].getNodeType() == NodeTypes.StartNode) {
+               libraryPattern[row][col] = 0;
+            } else {
+               libraryPattern[row][col] = -1;
+            }
+         }
+      }
+      LibrarySketchManager.saveLibraryPattern(libraryPattern, "library_pattern.dat");
+   }
+
+   void buildScreen() {
       frame = new JFrame();
       panel = new JPanel();
       bottomPanel = new JPanel();
@@ -388,14 +429,13 @@ public class NavigationPage {
       public void actionPerformed(ActionEvent e) {
          frame.dispose();
          System.gc();
-         delete();
       }
    }
 
    class SaveSketchListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent e) {
-         LibrarySketchManager.saveLibrarySketch(nodes);
+         saveLibraryPattern();
       }
    }
 }
