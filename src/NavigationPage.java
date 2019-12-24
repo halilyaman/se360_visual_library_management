@@ -35,6 +35,7 @@ public class NavigationPage {
    private JPanel gridViewPanel;
    private JPanel eastPanel;
    private JPanel imageArea;
+   private JLabel bookInformation;
    private Node[][] nodes;
 
    //index0 start node, index1 end node
@@ -78,12 +79,20 @@ public class NavigationPage {
             if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
                if (nodes[row][col].containDestinationPoint(destination_id)) {
                   addImage(nodes[row][col].getBook(destination_id).getIMAGE_URL());
+                  addBookInformationLabel(nodes[row][col].getBook(destination_id), row, col);
                   nodes[row][col].setNodeType(NodeTypes.EndNode);
                }
             }
 
          }
       }
+   }
+
+   private void addBookInformationLabel(Book book, int row, int col) {
+      String shelfNumber = Integer.toString(nodes[row][col].getShelfNumber(book.getLOCATION()));
+      String orderNumber = Integer.toString(nodes[row][col].getOrderNumber(book.getLOCATION()));
+
+      bookInformation = new JLabel("Shelf Number: " + shelfNumber + "\nOrder Number: " + orderNumber);
    }
 
    private void saveLibraryPattern() {
@@ -129,7 +138,7 @@ public class NavigationPage {
       imageArea.setLayout(new BorderLayout());
 
       eastPanel.add(imageArea);
-      eastPanel.add(new JLabel("Shelf Number: dasdasdasdOrder Number: "));
+      eastPanel.add(bookInformation);
       eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
       eastPanel.setBorder(new EmptyBorder(100, 15, 95, 15));
 
@@ -152,36 +161,6 @@ public class NavigationPage {
       for(int row = 0; row < ROW_SIZE; row++) {
          for(int col = 0; col < COL_SIZE; col++) {
             gridViewPanel.add(nodes[row][col].getNode());
-         }
-      }
-   }
-
-   private void setNodes() {
-      if(nodes == null) {
-         eastPanel = new JPanel();
-         imageArea = new JPanel();
-         nodes = new Node[ROW_SIZE][COL_SIZE];
-         for(int row = 0; row < ROW_SIZE; row++) {
-            for(int col = 0; col < COL_SIZE; col++) {
-               nodes[row][col] = new Node(row, col, NodeTypes.AvailableNode);
-               nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
-               nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
-            }
-         }
-      } else {
-         LinkedList<Book> allBooks = getAllBooksFromDatabase();
-         for(int row = 0; row < ROW_SIZE; row++) {
-            for(int col = 0; col < COL_SIZE; col++) {
-               nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
-               nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
-               fillShelvesWithBooks(row, col, allBooks);
-               if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
-                  if (nodes[row][col].containDestinationPoint(destination_id)) {
-                     addImage(nodes[row][col].getBook(destination_id).getIMAGE_URL());
-                     nodes[row][col].setNodeType(NodeTypes.EndNode);
-                  }
-               }
-            }
          }
       }
    }
