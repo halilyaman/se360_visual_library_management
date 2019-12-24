@@ -78,7 +78,7 @@ public class LibrarySearchPanel {
          }
          Statement statement = DBConnection.connection.createStatement();
          ResultSet resultSet = statement.executeQuery(
-            "SELECT book_title, book_desc, book_authors, genres, location FROM books WHERE book_title LIKE '" + bookTitle + "';");
+            "SELECT * FROM books WHERE book_title LIKE '" + bookTitle + "';");
 
          // firstly collect the results in list, then update ui from that list
          while(resultSet.next()) {
@@ -88,6 +88,7 @@ public class LibrarySearchPanel {
                resultSet.getString("book_authors"),
                resultSet.getString("genres"),
                resultSet.getInt("location"),
+               resultSet.getString("image_url"),
                true
             ));
             size++;
@@ -95,7 +96,7 @@ public class LibrarySearchPanel {
 
          for(int i = 0; i < queries.length; i++) {
             resultSet = statement.executeQuery(
-               "SELECT book_title, book_desc, book_authors, genres, location FROM books WHERE book_title LIKE '" + queries[i] + "';");
+               "SELECT * FROM books WHERE book_title LIKE '" + queries[i] + "';");
             while(resultSet.next()) {
                results.add(new Book(
                   resultSet.getString("book_title"),
@@ -103,6 +104,7 @@ public class LibrarySearchPanel {
                   resultSet.getString("book_authors"),
                   resultSet.getString("genres"),
                   resultSet.getInt("location"),
+                  resultSet.getString("image_url"),
                   true
                ));
                size++;

@@ -1,8 +1,14 @@
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,6 +33,8 @@ public class NavigationPage {
    private JPanel panel;
    private JPanel bottomPanel;
    private JPanel gridViewPanel;
+   private JPanel eastPanel;
+   private JPanel imageArea;
    private Node[][] nodes;
 
    //index0 start node, index1 end node
@@ -38,6 +46,7 @@ public class NavigationPage {
    private int startNodeCol = -1;
 
    final private int destination_id;
+   private NavigationPage me;
 
    public NavigationPage(int destination_id) {
       previousNodes = new Node[2];
@@ -47,7 +56,12 @@ public class NavigationPage {
       updateStartNodeLocation();
    }
 
-   void buildScreen() {
+   private void delete() {
+      me = null;
+   }
+
+   void buildScreen(NavigationPage me) {
+      this.me = me;
       frame = new JFrame();
       panel = new JPanel();
       bottomPanel = new JPanel();
@@ -70,8 +84,19 @@ public class NavigationPage {
       bottomPanel.add(saveSketch);
       bottomPanel.setBackground(Color.BLUE);
 
+      imageArea.setPreferredSize(new Dimension(100, 100));
+      imageArea.setBackground(Color.red);
+      imageArea.setLayout(new BorderLayout());
+
+      eastPanel.add(imageArea);
+      eastPanel.add(new JLabel("HALİL YAMANasdasdasdasdasdasdasd"));
+      eastPanel.setLayout(new BoxLayout(eastPanel, BoxLayout.Y_AXIS));
+      eastPanel.setBorder(new EmptyBorder(90, 10, 90, 10));
+      eastPanel.setBackground(Color.magenta);
+
       panel.add(gridViewPanel, BorderLayout.CENTER);
       panel.add(bottomPanel, BorderLayout.SOUTH);
+      panel.add(eastPanel, BorderLayout.EAST);
 
       frame.setLayout(null);
       frame.setSize(new Dimension(LibrarySearchPanel.W_WIDTH, LibrarySearchPanel.W_HEIGHT));
@@ -111,11 +136,33 @@ public class NavigationPage {
                fillShelvesWithBooks(row, col, allBooks);
                if(nodes[row][col].getNodeType() == NodeTypes.WallNode) {
                   if (nodes[row][col].containDestinationPoint(destination_id)) {
+                     addImage(nodes[row][col].getBook(destination_id).getIMAGE_URL());
                      nodes[row][col].setNodeType(NodeTypes.EndNode);
                   }
                }
             }
          }
+      }
+   }
+
+   private void addImage(String urlPath) {
+      eastPanel = new JPanel();
+      imageArea = new JPanel();
+      Image image;
+      URL url;
+      try {
+         url = new URL(urlPath);
+         image = ImageIO.read(url);
+         image = image.getScaledInstance(280, 450, Image.SCALE_DEFAULT);
+         ImageIcon imageIcon = new ImageIcon(image);
+         JLabel imageLabel = new JLabel(imageIcon);
+         imageLabel.setSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
+         imageArea.add(imageLabel, BorderLayout.CENTER);
+         eastPanel.updateUI();
+      } catch (MalformedURLException e) {
+         e.printStackTrace();
+      } catch(IOException ex) {
+         ex.printStackTrace();
       }
    }
 
@@ -136,6 +183,7 @@ public class NavigationPage {
                resultSet.getString("book_authors"),
                resultSet.getString("genres"),
                resultSet.getInt("location"),
+               resultSet.getString("image_url"),
                true
             ));
          }
@@ -340,6 +388,7 @@ public class NavigationPage {
       public void actionPerformed(ActionEvent e) {
          frame.dispose();
          System.gc();
+         delete();
       }
    }
 

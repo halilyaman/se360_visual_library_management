@@ -9,7 +9,7 @@ public class RunApp {
       new LibrarySearchPanel(
          "Book Title",
          "Library System",
-         "IUE Library ©",
+         "Labyrinth Library ©",
          LibrarySearchPanel.DEFAULT_BG_COLOR
       );
    }

@@ -131,7 +131,10 @@ public class SingleSearchResult {
       @Override
       public void actionPerformed(ActionEvent e) {
          NavigationPage navigationPage = new NavigationPage(book.getLOCATION());
-         new Thread(navigationPage::buildScreen).start();
+         new Thread(() -> {
+            navigationPage.buildScreen(navigationPage);
+         }).start();
+
       }
    }
 }

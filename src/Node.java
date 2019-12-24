@@ -150,4 +150,15 @@ public class Node implements Serializable {
       }
       return false;
    }
+
+   public Book getBook(int location) {
+      for(Book[] shelf : books) {
+         for(Book book : shelf) {
+            if(book.getLOCATION() == location) {
+               return book;
+            }
+         }
+      }
+      return null;
+   }
 }
