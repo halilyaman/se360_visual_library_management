@@ -203,6 +203,8 @@ public class SingleSearchResult {
             FileReader fileReader = new FileReader("borrows.csv");
             BufferedReader reader = new BufferedReader(fileReader);
 
+            String userId = "";
+
             String line;
             ArrayList<String> lines = new ArrayList<>();
             String[] parsed = null;
@@ -210,13 +212,15 @@ public class SingleSearchResult {
                parsed = line.split(",");
                if(!(Integer.parseInt(parsed[0]) == book.getLOCATION())) {
                   lines.add(line);
+               } else {
+                  userId = parsed[2];
                }
             }
             reader.close();
 
             int selection = -1;
             if(parsed != null) {
-               String message = "User ID: " + parsed[2] + "\nBook Title: " + book.getTITLE();
+               String message = "User ID: " + userId + "\nBook Title: " + book.getTITLE();
                selection = JOptionPane.showConfirmDialog(null,message, "Message", JOptionPane.YES_NO_OPTION);
             }
 
