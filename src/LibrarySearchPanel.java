@@ -225,6 +225,9 @@ public class LibrarySearchPanel {
          upperPanel.setBorder(new EmptyBorder(20,0,0,0));
          scrollableArea.setVisible(true);
 
+         Thread controllerThread = new Thread(new ReturnDateController());
+         controllerThread.start();
+
          new Thread(() -> {
             loadSearchResultComponents(searchBar.getText());
          }).start();
