@@ -61,6 +61,13 @@ public class SingleSearchResult {
       resultPanel.setBorder(new EmptyBorder(20,10,0,20));
       resultPanel.add(resultContentPanel, BorderLayout.CENTER);
 
+      // Wait for all components to be loaded.
+      try {
+         Thread.sleep(1);
+      } catch (InterruptedException e) {
+         e.printStackTrace();
+      }
+
       return resultPanel;
    }
 
@@ -193,6 +200,12 @@ public class SingleSearchResult {
          } catch(IOException ex) {
             ex.printStackTrace();
          }
+         if(userId != null) {
+            rightContentPanel.removeAll();
+            searchBorrowedBooks();
+            buildRightContent();
+            rightContentPanel.updateUI();
+         }
       }
    }
 
@@ -233,6 +246,12 @@ public class SingleSearchResult {
                }
 
                writer.close();
+
+               book.setAvailable(true);
+
+               rightContentPanel.removeAll();
+               buildRightContent();
+               rightContentPanel.updateUI();
             }
          } catch(IOException ex) {
             ex.printStackTrace();

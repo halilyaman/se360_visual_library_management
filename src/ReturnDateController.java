@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.ArrayList;
 
+// This class checks the deadline for each borrowed books periodically in another thread.
 public class ReturnDateController implements Runnable {
    ArrayList<String> borrowingRecords;
    ArrayList<String> deadLinePenalty;
@@ -23,7 +24,7 @@ public class ReturnDateController implements Runnable {
 
       int timeOut = 2000;
       long currentTime = System.currentTimeMillis();
-      int twentyOneDaysInMillisecond = 20000; // 1814400000ms = 21days
+      int twentyOneDaysInMillisecond = 1814400000; // 1814400000ms = 21days
       while (System.currentTimeMillis() - currentTime < timeOut) {
          for(int i = 0; i < borrowingRecords.size(); i++) {
             String[] parsed = borrowingRecords.get(i).split(",");

@@ -70,9 +70,10 @@ public class NavigationPage {
             } else if(libraryPattern[row][col] == 1) {
                nodes[row][col] = new Node(row, col, NodeTypes.WallNode);
             }
-
-            nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
-            nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
+            if(Admin.isAdminOnline) {
+               nodes[row][col].getNodePanel().addMouseListener(new NodeMouseListener(nodes[row][col]));
+               nodes[row][col].getNodePanel().addMouseMotionListener(new NodeMouseMotionListener());
+            }
 
             fillShelvesWithBooks(row, col, allBooks);
 
@@ -117,14 +118,17 @@ public class NavigationPage {
       buildGridView();
 
       JButton backButton = new JButton("Back");
-      JButton saveSketch = new JButton("Save Sketch");
+      JButton saveSketchButton = new JButton("Save Sketch");
+      if(!Admin.isAdminOnline) {
+         saveSketchButton.setVisible(false);
+      }
 
-      saveSketch.addActionListener(new SaveSketchListener());
+      saveSketchButton.addActionListener(new SaveSketchListener());
       backButton.addActionListener(new BackButtonListener());
 
       bottomPanel.setLayout(new FlowLayout());
       bottomPanel.add(backButton);
-      bottomPanel.add(saveSketch);
+      bottomPanel.add(saveSketchButton);
       bottomPanel.setBackground(Color.BLUE);
 
       imageArea.setPreferredSize(new Dimension(100, 100));
