@@ -49,6 +49,9 @@ public class NavigationPage {
    final private int destination_id;
 
    public NavigationPage(int destination_id) {
+      eastPanel = new JPanel();
+      imageArea = new JPanel();
+      bookInformation = new JLabel();
       previousNodes = new Node[2];
       this.destination_id = destination_id;
 
@@ -59,10 +62,17 @@ public class NavigationPage {
    private void loadLibraryPattern() {
       LinkedList<Book> allBooks = getAllBooksFromDatabase();
       int[][] libraryPattern = (int[][]) LibrarySketchManager.loadLibrarySketch("library_pattern.dat");
+      if(libraryPattern == null) {
+         libraryPattern = new int[ROW_SIZE][COL_SIZE];
+         for(int row = 0; row < ROW_SIZE; row++) {
+            for(int col = 0; col < COL_SIZE; col++) {
+               libraryPattern[row][col] = -1;
+            }
+         }
+      }
       nodes = new Node[ROW_SIZE][COL_SIZE];
       for(int row = 0; row < ROW_SIZE; row++) {
          for(int col = 0; col < COL_SIZE; col++) {
-
             if(libraryPattern[row][col] == -1) {
                nodes[row][col] = new Node(row, col, NodeTypes.AvailableNode);
             } else if(libraryPattern[row][col] == 0) {
@@ -84,7 +94,6 @@ public class NavigationPage {
                   nodes[row][col].setNodeType(NodeTypes.EndNode);
                }
             }
-
          }
       }
    }
@@ -170,8 +179,6 @@ public class NavigationPage {
    }
 
    private void addImage(String urlPath) {
-      eastPanel = new JPanel();
-      imageArea = new JPanel();
       Image image;
       URL url;
       try {

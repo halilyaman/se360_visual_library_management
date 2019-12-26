@@ -195,7 +195,9 @@ public class SingleSearchResult {
             printWriter.print(",");
             printWriter.print(millis);
             printWriter.print(",");
-            printWriter.println(userId);
+            printWriter.print(userId);
+            printWriter.print(",");
+            printWriter.println(book.getTITLE());
             printWriter.close();
          } catch(IOException ex) {
             ex.printStackTrace();

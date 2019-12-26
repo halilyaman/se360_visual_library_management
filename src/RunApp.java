@@ -11,7 +11,7 @@ public class RunApp {
       new LibrarySearchPanel(
          "Book Title",
          "Library System",
-         "Labyrinth Library ©",
+         "You should use the navigation to find the book!   |   Maze Library ©",
 
          LibrarySearchPanel.DEFAULT_BG_COLOR
       );

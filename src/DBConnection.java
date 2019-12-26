@@ -10,7 +10,7 @@ public class DBConnection {
       try {
          Class.forName("org.sqlite.JDBC");
 
-         String url = "jdbc:sqlite:/Users/halilyaman/Desktop/books.db";
+         String url = "jdbc:sqlite:database/books.db";
 
          connection = DriverManager.getConnection(url);
       } catch(ClassNotFoundException ex) {
